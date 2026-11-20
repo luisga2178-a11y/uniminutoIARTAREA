@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OVA - Semana 4: Plan Estratégico de Comunicación (PEC) | UNIMINUTO</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        uniminuto: {
+                            primary: '#002855',
+                            secondary: '#F2A900',
+                            light: '#F8FAFC',
+                            dark: '#1E293B',
+                            accent: '#0284C7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        @keyframes pulseBar {
+            0%, 100% { transform: scaleY(0.35); }
+            50% { transform: scaleY(1); }
+        }
+        .pulse-bar {
+            transform-origin: bottom;
+            animation: pulseBar 1.4s ease-in-out infinite;
+        }
+        .pulse-bar:nth-child(1) { animation-delay: 0.0s; }
+        .pulse-bar:nth-child(2) { animation-delay: 0.2s; }
+        .pulse-bar:nth-child(3) { animation-delay: 0.4s; }
+        .pulse-bar:nth-child(4) { animation-delay: 0.1s; }
+        .pulse-bar:nth-child(5) { animation-delay: 0.5s; }
+        .pulse-bar:nth-child(6) { animation-delay: 0.3s; }
+        .pulse-bar:nth-child(7) { animation-delay: 0.6s; }
+        .pulse-bar:nth-child(8) { animation-delay: 0.2s; }
+        .pulse-bar:nth-child(9) { animation-delay: 0.45s; }
+        .pulse-bar:nth-child(10) { animation-delay: 0.15s; }
+
+        @keyframes badgePop {
+            0% { transform: scale(0.85); opacity: 0.4; }
+            65% { transform: scale(1.04); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .badge-unlocked {
+            animation: badgePop 0.45s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header Institucional con HUD de Gamificación -->
+    <header class="bg-uniminuto-primary text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-uniminuto-secondary text-uniminuto-primary font-bold px-3 py-1 rounded text-sm uppercase tracking-wider">UNIMINUTO</div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">Estrategias de Comunicación</h1>
+                    <p class="text-xs text-slate-300">Educación Virtual y a Distancia</p>
+                </div>
+            </div>
+
+            <!-- HUD de Gamificación: Rango, XP, Racha y Progreso -->
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs">
+                <span class="bg-uniminuto-secondary/20 text-uniminuto-secondary px-3 py-1 rounded-full font-semibold border border-uniminuto-secondary/30">Semana 4: El PEC</span>
+                <div class="bg-slate-800/90 border border-white/10 px-3 py-1 rounded-lg flex items-center gap-1.5">
+                    <span>🎖️</span>
+                    <span class="text-slate-300">Rango:</span>
+                    <strong id="hud-rank" class="text-uniminuto-secondary">Analista en Formación</strong>
+                </div>
+                <div class="bg-slate-800/90 border border-white/10 px-3 py-1 rounded-lg flex items-center gap-1.5">
+                    <span>⚡</span>
+                    <strong id="hud-xp" class="text-sky-300">0</strong>
+                    <span class="text-slate-300">/ 500 XP</span>
+                </div>
+                <div class="bg-slate-800/90 border border-white/10 px-3 py-1 rounded-lg flex items-center gap-1.5" title="Racha de decisiones acertadas sin fallo">
+                    <span>🔥</span>
+                    <span class="text-slate-300">Racha:</span>
+                    <strong id="hud-streak" class="text-amber-300">0</strong>
+                </div>
+                <div class="bg-slate-800 px-3 py-1 rounded text-slate-200">
+                    Progreso: <strong id="global-progress">0</strong>%
+                </div>
+            </div>
+        </div>
+        <!-- Barra de XP continua bajo el header -->
+        <div class="w-full bg-slate-900 h-1.5">
+            <div id="xp-bar" class="bg-gradient-to-r from-uniminuto-secondary via-amber-300 to-emerald-400 h-1.5 transition-all duration-500" style="width: 0%;"></div>
+        </div>
+    </header>
+
+    <!-- Navegación Principal / Menú Superior de Pantallas -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm" role="navigation" aria-label="Navegación principal">
+        <div class="max-w-7xl mx-auto px-4 flex space-x-2 sm:space-x-8 overflow-x-auto py-2">
+            <button onclick="switchScreen('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 text-sm font-semibold text-uniminuto-primary border-b-2 border-uniminuto-primary whitespace-nowrap transition">🏠 Inicio</button>
+            <button onclick="switchScreen('aprender')" id="nav-aprender" class="nav-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-uniminuto-primary whitespace-nowrap transition">📚 Laboratorio Conceptual</button>
+            <button onclick="switchScreen('reto')" id="nav-reto" class="nav-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-uniminuto-primary whitespace-nowrap transition">🎯 Simulador Directivo</button>
+            <button onclick="switchScreen('logros')" id="nav-logros" class="nav-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-uniminuto-primary whitespace-nowrap transition">🏆 Mis Logros</button>
+        </div>
+    </nav>
+
+    <!-- Toast de Recompensa / Notificación Gamificada -->
+    <div id="gamification-toast" class="hidden fixed bottom-5 right-5 z-50 max-w-sm bg-slate-900 text-white border border-uniminuto-secondary/60 shadow-2xl rounded-xl p-4 flex items-start gap-3">
+        <span id="toast-icon" class="text-2xl">🏅</span>
+        <div class="flex-1">
+            <p id="toast-title" class="text-xs font-extrabold uppercase tracking-wider text-uniminuto-secondary">¡Recompensa Obtenida!</p>
+            <p id="toast-msg" class="text-xs text-slate-200 mt-0.5"></p>
+        </div>
+        <button onclick="hideToast()" class="text-slate-400 hover:text-white text-xs font-bold">✕</button>
+    </div>
+
+    <!-- Contenedor de Pantallas (SPA) -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- PANTALLA 1: DASHBOARD -->
+        <section id="screen-dashboard" class="screen active space-y-6">
+            <div class="bg-gradient-to-r from-uniminuto-primary to-slate-800 text-white p-8 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-6">
+                <div class="flex-1 space-y-3">
+                    <span class="bg-uniminuto-secondary text-uniminuto-primary text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Unidad 4 · Misión Directiva</span>
+                    <h2 class="text-3xl font-extrabold leading-tight">Estructura y Ejecución del Plan Estratégico de Comunicación (PEC)</h2>
+                    <p class="text-slate-200 text-sm sm:text-base leading-relaxed">
+                        Bienvenido al recurso interactivo de aprendizaje. En esta semana aprenderás a ensamblar diagnóstico, públicos, objetivos y tácticas en un instrumento rector con rigor operativo, financiero y directivo.
+                    </p>
+                    <div class="mt-4 pt-4 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-[11px] uppercase tracking-wider text-uniminuto-secondary font-bold block">Pulso Estratégico en Tiempo Real</span>
+                            <span class="text-xs text-slate-300">Monitoreo dinámico de impacto, alcance y retorno (ROI) del PEC</span>
+                        </div>
+                        <div class="flex items-end space-x-1.5 h-12 bg-slate-900/60 px-4 py-2 rounded-xl border border-white/10" aria-hidden="true" title="Gráfica animada de pulso estratégico">
+                            <div class="pulse-bar w-2 h-8 bg-uniminuto-secondary rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-sky-400 rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-uniminuto-secondary rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-emerald-400 rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-uniminuto-secondary rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-sky-400 rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-amber-300 rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-emerald-400 rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-uniminuto-secondary rounded-t"></div>
+                            <div class="pulse-bar w-2 h-8 bg-sky-400 rounded-t"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-80 flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80" alt="Planeación Estratégica Corporativa" class="rounded-xl shadow-lg border-2 border-white/20 object-cover h-48 w-full">
+                </div>
+            </div>
+
+            <!-- Panel de Misiones de la Semana (Gamificación) -->
+            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <span class="text-xs font-bold text-uniminuto-accent uppercase tracking-wider">Tablero de Misiones</span>
+                        <h3 class="text-lg font-bold text-uniminuto-primary">Ruta de Ascenso a Arquitecto del PEC</h3>
+                    </div>
+                    <span class="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-1 rounded-full">
+                        Misiones completadas: <strong id="missions-count">0</strong> / 4
+                    </span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <div id="mission-1" class="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+                        <span id="mission-1-icon" class="text-base">⬜</span>
+                        <div>
+                            <p class="font-bold text-slate-800">Misión 1: Explorador (+100 XP)</p>
+                            <p class="text-slate-600 mt-0.5">Revisa las 4 pestañas del Laboratorio Conceptual.</p>
+                        </div>
+                    </div>
+                    <div id="mission-2" class="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+                        <span id="mission-2-icon" class="text-base">⬜</span>
+                        <div>
+                            <p class="font-bold text-slate-800">Misión 2: Gobernanza RACI (+100 XP)</p>
+                            <p class="text-slate-600 mt-0.5">Completa el módulo y asigna roles sin ambigüedad.</p>
+                        </div>
+                    </div>
+                    <div id="mission-3" class="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+                        <span id="mission-3-icon" class="text-base">⬜</span>
+                        <div>
+                            <p class="font-bold text-slate-800">Misión 3: Escudo Financiero (+150 XP)</p>
+                            <p class="text-slate-600 mt-0.5">Supera la crisis del recorte del 40% con ZBB.</p>
+                        </div>
+                    </div>
+                    <div id="mission-4" class="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5">
+                        <span id="mission-4-icon" class="text-base">⬜</span>
+                        <div>
+                            <p class="font-bold text-slate-800">Misión 4: Maestría PEC (+150 XP)</p>
+                            <p class="text-slate-600 mt-0.5">Aprueba el cuestionario y desbloquea tu insignia.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Resultado de Aprendizaje -->
+            <div class="bg-white border-l-4 border-uniminuto-secondary p-6 rounded-xl shadow-md">
+                <h3 class="text-sm font-bold text-uniminuto-primary uppercase tracking-wider mb-1">Resultado de Aprendizaje de la Semana</h3>
+                <p class="text-slate-700 font-medium text-lg">"Establece planes de comunicación estratégica para los públicos y clientes o empresas."</p>
+            </div>
+
+            <!-- Tarjetas de Acceso Rápido con Imágenes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div onclick="switchScreen('aprender')" class="bg-white rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border border-slate-200 overflow-hidden group">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80" alt="Laboratorio Conceptual" class="h-32 w-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 bg-sky-100 text-uniminuto-accent rounded-lg flex items-center justify-center text-xl">📚</div>
+                            <span class="text-[11px] font-bold bg-sky-50 text-sky-700 border border-sky-200 px-2.5 py-0.5 rounded-full">Hasta 200 XP</span>
+                        </div>
+                        <h4 class="font-bold text-lg text-uniminuto-primary mb-2">1. Laboratorio Conceptual</h4>
+                        <p class="text-sm text-slate-600">Modelo de Ronald Smith, Matriz RACI, Presupuesto Base Cero y Videoclases HBR.</p>
+                    </div>
+                </div>
+                <div onclick="switchScreen('reto')" class="bg-white rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border border-slate-200 overflow-hidden group">
+                    <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80" alt="Simulador Directivo" class="h-32 w-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center text-xl">🎯</div>
+                            <span class="text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full">+150 XP</span>
+                        </div>
+                        <h4 class="font-bold text-lg text-uniminuto-primary mb-2">2. Simulador Directivo</h4>
+                        <p class="text-sm text-slate-600">Asume el rol de DirCom, distribuye recursos y supera la crisis de recorte presupuestal.</p>
+                    </div>
+                </div>
+                <div onclick="switchScreen('logros')" class="bg-white rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border border-slate-200 overflow-hidden group">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" alt="Evaluación y Logros" class="h-32 w-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-xl">🏆</div>
+                            <span class="text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full">+150 XP & Insignias</span>
+                        </div>
+                        <h4 class="font-bold text-lg text-uniminuto-primary mb-2">3. Evaluación y Logros</h4>
+                        <p class="text-sm text-slate-600">Evalúa tus conocimientos, desbloquea insignias y genera tu reporte de bitácora.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 2: APRENDER (LABORATORIO CONCEPTUAL) -->
+        <section id="screen-aprender" class="screen space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h2 class="text-2xl font-bold text-uniminuto-primary mb-1">Laboratorio Conceptual: Los Pilares del PEC</h2>
+                        <p class="text-slate-600 text-sm">Explora cada pestaña para sumar XP de exploración (+25 XP por pestaña) y dominar los fundamentos del PEC.</p>
+                    </div>
+                    <span class="text-xs font-bold bg-sky-100 text-sky-800 px-3 py-1.5 rounded-full">
+                        Pestañas exploradas: <strong id="tabs-explored-count">1</strong> / 4
+                    </span>
+                </div>
+
+                <!-- Imagen Destacada del Taller / Laboratorio -->
+                <div class="relative rounded-xl overflow-hidden shadow-md border border-slate-200">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80" alt="Trabajo en equipo y planeación estratégica" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent flex items-end p-4">
+                        <span class="text-white text-xs font-semibold bg-uniminuto-primary/90 px-3 py-1 rounded-md border border-white/20">Centro de Inteligencia Operativa y Dirección Estratégica</span>
+                    </div>
+                </div>
+
+                <!-- Pestañas de Navegación Interna -->
+                <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+                    <button onclick="switchTab('smith')" id="btn-smith" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-uniminuto-primary text-white transition">1. Modelo de Ronald Smith</button>
+                    <button onclick="switchTab('raci')" id="btn-raci" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition">2. Capital Humano (RACI)</button>
+                    <button onclick="switchTab('presupuesto')" id="btn-presupuesto" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition">3. Presupuesto y Riesgos</button>
+                    <button onclick="switchTab('multimedia')" id="btn-multimedia" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition">4. Videoclases HBR & Lecturas</button>
+                </div>
+
+                <!-- Contenido de Pestaña 1 -->
+                <div id="tab-smith" class="tab-content active space-y-4">
+                    <h3 class="text-lg font-bold text-uniminuto-primary">El Estándar Global: Modelo de 4 Fases y 9 Pasos</h3>
+                    <p class="text-sm text-slate-700">El modelo de Ronald Smith es el marco internacional más robusto para estructurar un Plan Estratégico de Comunicación (PEC). Organiza la gestión directiva en cuatro grandes momentos:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="text-xs font-bold text-uniminuto-accent uppercase">Fase 1</span>
+                            <h4 class="font-bold text-slate-800">Investigación Formativa</h4>
+                            <p class="text-xs text-slate-600 mt-1">Auditoría del entorno, análisis de la organización, públicos y grupos de interés (stakeholders).</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="text-xs font-bold text-uniminuto-accent uppercase">Fase 2</span>
+                            <h4 class="font-bold text-slate-800">Estrategia</h4>
+                            <p class="text-xs text-slate-600 mt-1">Formulación de objetivos de impacto, definición de mensajes clave, posicionamiento y estrategias de acción.</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="text-xs font-bold text-uniminuto-accent uppercase">Fase 3</span>
+                            <h4 class="font-bold text-slate-800">Tácticas</h4>
+                            <p class="text-xs text-slate-600 mt-1">Selección de canales, herramientas de comunicación y cronograma operativo (timing).</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="text-xs font-bold text-uniminuto-accent uppercase">Fase 4</span>
+                            <h4 class="font-bold text-slate-800">Evaluación</h4>
+                            <p class="text-xs text-slate-600 mt-1">Medición de resultados mediante KPIs, auditoría de salida y retroalimentación cíclica.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido de Pestaña 2 -->
+                <div id="tab-raci" class="tab-content space-y-4">
+                    <h3 class="text-lg font-bold text-uniminuto-primary">Capital Humano y la Matriz RACI</h3>
+                    <p class="text-sm text-slate-700">Como señala Joep Cornelissen, las estrategias fallan por la ambigüedad en los roles. La Matriz RACI organiza la gobernanza del equipo por cada táctica:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        <div class="bg-sky-50 p-4 rounded-lg border border-sky-200">
+                            <span class="text-lg font-extrabold text-sky-700">R</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Responsible</h4>
+                            <p class="text-xs text-slate-600 mt-1">Quien ejecuta la tarea y realiza el trabajo operativo.</p>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                            <span class="text-lg font-extrabold text-amber-700">A</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Accountable</h4>
+                            <p class="text-xs text-slate-600 mt-1">El único responsable final que rinde cuentas ante la Junta.</p>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                            <span class="text-lg font-extrabold text-emerald-700">C</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Consulted</h4>
+                            <p class="text-xs text-slate-600 mt-1">Experto o asesor consultado antes de validar la acción.</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <span class="text-lg font-extrabold text-purple-700">I</span>
+                            <h4 class="font-bold text-slate-800 text-sm">Informed</h4>
+                            <p class="text-xs text-slate-600 mt-1">Stakeholder que recibe informes sobre el avance.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido de Pestaña 3 -->
+                <div id="tab-presupuesto" class="tab-content space-y-4">
+                    <h3 class="text-lg font-bold text-uniminuto-primary">Presupuesto Base Cero y Gestión de Riesgos</h3>
+                    <p class="text-sm text-slate-700">A la Junta Directiva se le habla con rigor financiero:</p>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
+                        <h4 class="font-bold text-slate-800 text-sm">Presupuesto Base Cero (ZBB)</h4>
+                        <p class="text-xs text-slate-600">No se pide "lo mismo del año pasado más la inflación". Se calcula el costo exacto de cada táctica requerida para cumplir el objetivo actual, justificando cada peso por su retorno (ROI) esperado e incluyendo un <strong>10% a 15% de reserva de contingencia</strong>.</p>
+                        <h4 class="font-bold text-slate-800 text-sm pt-2">Gestión de Riesgos (Plan B)</h4>
+                        <p class="text-xs text-slate-600">Todo PEC debe prever escenarios de crisis (recortes presupuestales, caída de proveedores, crisis reputacional) para reaccionar con agilidad y metodologías <em>Agile PR</em> (Sprints mensuales).</p>
+                    </div>
+                </div>
+
+                <!-- Contenido de Pestaña 4: Multimedia y Enlaces en Vivo -->
+                <div id="tab-multimedia" class="tab-content space-y-6">
+                    <h3 class="text-lg font-bold text-uniminuto-primary">Videoclases Oficiales HBR y Recursos Bibliográficos</h3>
+                    <p class="text-sm text-slate-700">Reproduzca los recursos audiovisuales oficiales de Harvard Business Review sobre ejecución y liderazgo en la comunicación:</p>
+                    
+                    <!-- Video 1: The Explainer - Balancing Execution and Adaptation -->
+                    <div class="bg-slate-900 rounded-xl overflow-hidden shadow-lg border border-slate-800">
+                        <div class="p-3 bg-slate-800 text-white text-xs font-semibold flex items-center justify-between">
+                            <span>▶️ Video 1: HBR - Balancing Execution and Adaptation</span>
+                            <span class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px]">YouTube En Vivo</span>
+                        </div>
+                        <div class="relative w-full" style="padding-bottom: 56.25%;">
+                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/M1kSIerx-Fg?enablejsapi=1" title="Balancing Execution and Adaptation" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                        <div class="p-2 bg-slate-800/90 text-center text-xs text-slate-300">
+                            <a href="https://www.youtube.com/watch?v=M1kSIerx-Fg" target="_blank" class="text-uniminuto-secondary underline font-bold hover:text-white">Abrir Video 1 directamente en YouTube ↗</a>
+                        </div>
+                    </div>
+
+                    <!-- Video 2: Leading Through the Noise (HBR Official Reference) -->
+                    <div class="bg-slate-900 rounded-xl overflow-hidden shadow-lg border border-slate-800 mt-6">
+                        <div class="p-3 bg-slate-800 text-white text-xs font-semibold flex items-center justify-between">
+                            <span>▶️ Video 2: HBR - Leading Through the Noise: Communications</span>
+                            <span class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px]">YouTube En Vivo</span>
+                        </div>
+                        <div class="relative w-full" style="padding-bottom: 56.25%;">
+                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Leading Through the Noise" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                        <div class="p-2 bg-slate-800/90 text-center text-xs text-slate-300">
+                            <a href="https://hbr.org/video/leading-through-the-noise-communications" target="_blank" class="text-uniminuto-secondary underline font-bold hover:text-white">Ver en HBR Portal Oficial (Leading Through the Noise) ↗</a>
+                        </div>
+                    </div>
+
+                    <!-- Enlaces Bibliográficos Oficiales -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-6">
+                        <h4 class="font-bold text-slate-800 text-sm">📖 Recursos Bibliográficos de la Unidad (Acceso Directo)</h4>
+                        <ul class="space-y-2 text-xs">
+                            <li>
+                                • <strong>Matilla, K. (2018):</strong> <a href="https://elibro.net/es/ereader/uniminuto/59112?page=149" target="_blank" class="text-uniminuto-accent underline hover:text-uniminuto-primary font-medium">Un modelo global de planificación estratégica en comunicación (eLibro UNIMINUTO)</a>
+                            </li>
+                            <li>
+                                • <strong>Aljure, A. (2015):</strong> <a href="https://elibro.net/es/ereader/uniminuto/57730?page=79" target="_blank" class="text-uniminuto-accent underline hover:text-uniminuto-primary font-medium">El plan estratégico de comunicación (PEC) (eLibro UNIMINUTO)</a>
+                            </li>
+                            <li>
+                                • <strong>Tur, V. y Monserrat, J. (2014):</strong> <a href="https://www.redalyc.org/pdf/1995/199532731046.pdf" target="_blank" class="text-uniminuto-accent underline hover:text-uniminuto-primary font-medium">El Plan Estratégico de Comunicación: Estructura y Funciones (Redalyc)</a>
+                            </li>
+                            <li>
+                                • <strong>Guijarro, M. (2020):</strong> <a href="https://www.iebschool.com/blog/elaborar-plan-comunicacion-9-pasos-comunicacion-digital/" target="_blank" class="text-uniminuto-accent underline hover:text-uniminuto-primary font-medium">¿Qué es y Cómo Elaborar un Plan de Comunicación? (IEBS Blog)</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end">
+                    <button onclick="completeModule('aprender')" class="bg-uniminuto-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-800 transition">Completar Módulo (+100 XP) y Avanzar al Simulador ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 3: SIMULADOR DIRECTIVO (RETO PRÁCTICO) -->
+        <section id="screen-reto" class="screen space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Simulación Gerencial · +150 XP</span>
+                        <h2 class="text-2xl font-bold text-uniminuto-primary mt-2">La Prueba de Fuego del DirCom</h2>
+                        <p class="text-slate-600 text-sm mt-1">Usted asume como Director de Comunicaciones de una corporación en expansión. Cada acierto impulsa su racha 🔥 y suma XP.</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl text-xs text-amber-900 font-semibold">
+                        Intentos realizados: <strong id="sim-attempts">0</strong>
+                    </div>
+                </div>
+
+                <!-- Imagen Ilustrativa del Simulador -->
+                <div class="relative rounded-xl overflow-hidden shadow-md border border-slate-200">
+                    <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=80" alt="Toma de decisiones directivas y presupuesto" class="w-full h-36 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent flex items-end p-3">
+                        <span class="text-white text-xs font-semibold bg-amber-600/90 px-3 py-1 rounded-md border border-white/20">Simulador de Crisis y Gobernanza Financiera</span>
+                    </div>
+                </div>
+
+                <!-- Reto 1: Matriz RACI -->
+                <div class="border border-slate-200 rounded-xl p-5 space-y-4 bg-slate-50">
+                    <h3 class="font-bold text-uniminuto-primary text-lg">Reto 1: Asignación de Roles (Matriz RACI)</h3>
+                    <p class="text-xs text-slate-600">Para la táctica clave de <em>"Lanzamiento de Campaña de Relaciones Públicas"</em>, asigne el rol correcto para evitar duplicidad o vacíos de poder.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-3 rounded border border-slate-200">
+                            <p class="text-xs font-bold text-slate-700 mb-2">Redactar nota de prensa y gestionar envíos:</p>
+                            <select id="raci-1" class="w-full text-xs p-2 border rounded bg-slate-50">
+                                <option value="">Seleccione rol RACI...</option>
+                                <option value="R">Responsible (Ejecuta)</option>
+                                <option value="A">Accountable (Rinde cuentas)</option>
+                                <option value="C">Consulted (Asesora)</option>
+                            </select>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-slate-200">
+                            <p class="text-xs font-bold text-slate-700 mb-2">Aprobar presupuesto final ante la Junta:</p>
+                            <select id="raci-2" class="w-full text-xs p-2 border rounded bg-slate-50">
+                                <option value="">Seleccione rol RACI...</option>
+                                <option value="R">Responsible (Ejecuta)</option>
+                                <option value="A">Accountable (Rinde cuentas)</option>
+                                <option value="I">Informed (Informado)</option>
+                            </select>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-slate-200">
+                            <p class="text-xs font-bold text-slate-700 mb-2">Revisar cumplimiento legal del mensaje:</p>
+                            <select id="raci-3" class="w-full text-xs p-2 border rounded bg-slate-50">
+                                <option value="">Seleccione rol RACI...</option>
+                                <option value="C">Consulted (Asesora)</option>
+                                <option value="R">Responsible (Ejecuta)</option>
+                                <option value="A">Accountable (Rinde cuentas)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reto 2: La Guillotina del Presupuesto (Crisis) -->
+                <div class="border border-amber-300 rounded-xl p-5 space-y-4 bg-amber-50/50">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xl">🚨</span>
+                        <h3 class="font-bold text-amber-900 text-lg">Reto 2: La Guillotina del Presupuesto (Crisis Simulado)</h3>
+                    </div>
+                    <p class="text-xs text-slate-700">A mitad de ejecución del PEC, el CFO notifica un <strong>recorte del 40% del presupuesto</strong> por contracción del mercado. Como DirCom, ¿qué decisión toma para proteger el ROI del plan?</p>
+                    <div class="space-y-2">
+                        <label class="flex items-start space-x-3 bg-white p-3 rounded border border-amber-200 cursor-pointer">
+                            <input type="radio" name="crisis-choice" value="wrong1" class="mt-1">
+                            <span class="text-xs text-slate-700"><strong>Opción A:</strong> Cancelar todas las tácticas de relaciones públicas y despedir al 50% de la agencia externa de manera inmediata.</span>
+                        </label>
+                        <label class="flex items-start space-x-3 bg-white p-3 rounded border border-amber-200 cursor-pointer">
+                            <input type="radio" name="crisis-choice" value="correct" class="mt-1">
+                            <span class="text-xs text-slate-700"><strong>Opción B:</strong> Activar el Presupuesto Base Cero y el plan de contingencia (15%), recortando tácticas secundarias de bajo impacto y protegiendo los canales core de conversión.</span>
+                        </label>
+                        <label class="flex items-start space-x-3 bg-white p-3 rounded border border-amber-200 cursor-pointer">
+                            <input type="radio" name="crisis-choice" value="wrong2" class="mt-1">
+                            <span class="text-xs text-slate-700"><strong>Opción C:</strong> Ignorar el recorte del CFO y continuar gastando con la reserva de contingencia sin justificar retorno.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="sim-feedback" class="hidden p-4 rounded-lg text-sm font-semibold"></div>
+
+                <div class="flex justify-end">
+                    <button onclick="evaluateSimulator()" class="bg-uniminuto-secondary text-uniminuto-primary font-bold px-6 py-3 rounded-lg shadow hover:bg-amber-400 transition">Evaluar Decisiones Gerenciales ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 4: MIS LOGROS (EVALUACIÓN, VITRINA DE INSIGNIAS Y BITÁCORA) -->
+        <section id="screen-logros" class="screen space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md space-y-6">
+                <div>
+                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Evaluación Formativa · Vitrina de Logros</span>
+                    <h2 class="text-2xl font-bold text-uniminuto-primary mt-2">Bitácora de Logros, Rangos e Insignias</h2>
+                    <p class="text-slate-600 text-sm mt-1">Valida tus conocimientos, desbloquea tus insignias de competencia y descarga tu reporte de bitácora.</p>
+                </div>
+
+                <!-- Imagen Destacada de Logros -->
+                <div class="relative rounded-xl overflow-hidden shadow-md border border-slate-200">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80" alt="Logros y Crecimiento Profesional" class="w-full h-40 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent flex items-end p-4">
+                        <span class="text-white text-xs font-semibold bg-emerald-700/90 px-3 py-1 rounded-md border border-white/20">Certificación de Dominio y Excelencia Académica</span>
+                    </div>
+                </div>
+
+                <!-- Vitrina de 3 Insignias Progresivas -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-slate-800 text-base">Vitrina de Insignias del PEC</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div id="card-badge-explorer" class="p-4 rounded-xl border border-slate-200 bg-slate-50 opacity-65 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-2xl">🧭</span>
+                                <span id="status-badge-explorer" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600">Bloqueada</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800">Explorador Estratégico</h4>
+                            <p class="text-xs text-slate-600 mt-1">Explora las 4 pestañas del Laboratorio Conceptual y completa el módulo.</p>
+                        </div>
+
+                        <div id="card-badge-crisis" class="p-4 rounded-xl border border-slate-200 bg-slate-50 opacity-65 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-2xl">📉</span>
+                                <span id="status-badge-crisis" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600">Bloqueada</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800">Estratega ante la Crisis</h4>
+                            <p class="text-xs text-slate-600 mt-1">Supera la asignación RACI y el recorte del 40% con Presupuesto Base Cero.</p>
+                        </div>
+
+                        <div id="card-badge-master" class="p-4 rounded-xl border border-slate-200 bg-slate-50 opacity-65 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-2xl">🛡️</span>
+                                <span id="status-badge-master" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600">Bloqueada</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800">Arquitecto del PEC</h4>
+                            <p class="text-xs text-slate-600 mt-1">Responde correctamente ambas preguntas del cuestionario de transferencia.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cuestionario Formativo -->
+                <div class="space-y-4 border-b border-slate-200 pb-6 pt-2">
+                    <h3 class="font-bold text-slate-800 text-base">Cuestionario de Transferencia (+150 XP)</h3>
+                    
+                    <div class="space-y-2 bg-slate-50 p-4 rounded-lg border">
+                        <p class="text-xs font-bold text-slate-800">1. ¿Cuál es el propósito principal de integrar una Matriz RACI dentro de la estructuración del PEC?</p>
+                        <div class="space-y-1 text-xs text-slate-700 pt-1">
+                            <label class="block"><input type="radio" name="q1" value="a"> A) Definir exactamente qué presupuesto se asigna a cada agencia de publicidad.</label>
+                            <label class="block"><input type="radio" name="q1" value="b"> B) Eliminar la ambigüedad en los roles del equipo, especificando quién ejecuta (R), rinde cuentas (A), es consultado (C) o informado (I).</label>
+                            <label class="block"><input type="radio" name="q1" value="c"> C) Establecer el cronograma anual en diagramas de Gantt.</label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 bg-slate-50 p-4 rounded-lg border">
+                        <p class="text-xs font-bold text-slate-800">2. ¿En qué se diferencia el Presupuesto Base Cero frente a los presupuestos tradicionales?</p>
+                        <div class="space-y-1 text-xs text-slate-700 pt-1">
+                            <label class="block"><input type="radio" name="q2" value="a"> A) Se calcula sumando el IPC al presupuesto del año anterior.</label>
+                            <label class="block"><input type="radio" name="q2" value="b"> B) Calcula el costo exacto de cada táctica requerida para el objetivo actual, justificando cada partida por el retorno esperado y un margen de contingencia.</label>
+                            <label class="block"><input type="radio" name="q2" value="c"> C) Se limita estrictamente a cubrir los gastos fijos de la oficina corporativa.</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quiz-feedback" class="hidden p-4 rounded-lg text-sm font-semibold"></div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <button onclick="evaluateQuiz()" class="w-full sm:w-auto bg-uniminuto-primary text-white font-bold px-6 py-3 rounded-lg shadow hover:bg-slate-800 transition">Calificar Cuestionario</button>
+                    
+                    <!-- Insignia Principal Destacada -->
+                    <div id="badge-container" class="hidden bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 rounded-xl shadow-lg flex items-center space-x-4 w-full sm:w-auto">
+                        <div class="text-3xl">🛡️</div>
+                        <div>
+                            <h4 class="font-extrabold text-sm uppercase">¡Insignia Principal Desbloqueada!</h4>
+                            <p class="text-xs text-amber-100">Arquitecto del PEC - Nivel Maestría</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Generar Reporte / Descarga Bitácora -->
+                <div class="pt-4 border-t border-slate-200 flex justify-end">
+                    <button onclick="generateReport()" class="bg-emerald-600 text-white font-bold px-6 py-2 rounded-lg shadow hover:bg-emerald-700 transition text-sm">🖨️ Generar y Descargar Reporte de Bitácora</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            © 2026 Corporación Universitaria Minuto de Dios - UNIMINUTO Virtual y a Distancia. Recurso Interactivo de Aprendizaje (OVA).
+        </div>
+    </footer>
+
+    <!-- JavaScript de Control de Pantallas, Progreso y Gamificación -->
+    <script>
+        const MAX_XP = 500;
+        let progress = 0;
+        let xp = 0;
+        let streak = 0;
+        let simAttempts = 0;
+
+        let completedModules = { aprender: false, reto: false, logros: false };
+        let exploredTabs = { smith: true, raci: false, presupuesto: false, multimedia: false };
+        let xpAwarded = {
+            tabsBonus: false,
+            aprender: false,
+            reto: false,
+            logros: false
+        };
+        let unlockedBadges = {
+            explorer: false,
+            crisis: false,
+            master: false
+        };
+
+        let toastTimer = null;
+
+        function showToast(title, msg, icon = '🏅') {
+            const toast = document.getElementById('gamification-toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').innerText = icon;
+            toast.classList.remove('hidden');
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3800);
+        }
+
+        function hideToast() {
+            document.getElementById('gamification-toast').classList.add('hidden');
+        }
+
+        function addXP(amount, reasonTitle, reasonMsg, icon = '⚡') {
+            if (amount <= 0) return;
+            xp = Math.min(MAX_XP, xp + amount);
+            updateGamificationUI();
+            showToast(reasonTitle || `+${amount} XP ganados`, reasonMsg || `Sumaste ${amount} puntos de experiencia.`, icon);
+        }
+
+        function getRankName(currentXp) {
+            if (currentXp >= 450) return 'Arquitecto del PEC';
+            if (currentXp >= 250) return 'DirCom Estratégico';
+            if (currentXp >= 100) return 'Gestor Táctico';
+            return 'Analista en Formación';
+        }
+
+        function unlockBadge(key, badgeName, reason) {
+            if (unlockedBadges[key]) return;
+            unlockedBadges[key] = true;
+
+            const cardMap = {
+                explorer: 'card-badge-explorer',
+                crisis: 'card-badge-crisis',
+                master: 'card-badge-master'
+            };
+            const statusMap = {
+                explorer: 'status-badge-explorer',
+                crisis: 'status-badge-crisis',
+                master: 'status-badge-master'
+            };
+
+            const card = document.getElementById(cardMap[key]);
+            const status = document.getElementById(statusMap[key]);
+
+            if (card) {
+                card.classList.remove('opacity-65', 'bg-slate-50', 'border-slate-200');
+                card.classList.add('bg-amber-50/70', 'border-amber-400', 'shadow-sm', 'badge-unlocked');
+            }
+            if (status) {
+                status.innerText = 'Desbloqueada';
+                status.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+            }
+
+            showToast(`¡Insignia: ${badgeName}!`, reason, '🏆');
+        }
+
+        function updateMissionsBoard() {
+            const m1Done = Object.values(exploredTabs).every(Boolean);
+            const m2Done = completedModules.aprender;
+            const m3Done = completedModules.reto;
+            const m4Done = completedModules.logros;
+
+            const states = [
+                { id: 'mission-1', iconId: 'mission-1-icon', done: m1Done },
+                { id: 'mission-2', iconId: 'mission-2-icon', done: m2Done },
+                { id: 'mission-3', iconId: 'mission-3-icon', done: m3Done },
+                { id: 'mission-4', iconId: 'mission-4-icon', done: m4Done }
+            ];
+
+            let doneCount = 0;
+            states.forEach(item => {
+                const el = document.getElementById(item.id);
+                const ic = document.getElementById(item.iconId);
+                if (item.done) {
+                    doneCount++;
+                    if (el) el.className = 'p-3.5 rounded-lg border border-emerald-300 bg-emerald-50/70 flex items-start gap-2.5';
+                    if (ic) ic.innerText = '✅';
+                } else {
+                    if (el) el.className = 'p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-start gap-2.5';
+                    if (ic) ic.innerText = '⬜';
+                }
+            });
+
+            document.getElementById('missions-count').innerText = doneCount;
+
+            if (m1Done && m2Done) {
+                unlockBadge('explorer', 'Explorador Estratégico', 'Completaste el Laboratorio Conceptual y revisaste sus 4 pilares.');
+            }
+        }
+
+        function updateGamificationUI() {
+            document.getElementById('hud-xp').innerText = xp;
+            document.getElementById('hud-rank').innerText = getRankName(xp);
+            document.getElementById('hud-streak').innerText = streak;
+            document.getElementById('xp-bar').style.width = `${Math.round((xp / MAX_XP) * 100)}%`;
+            updateMissionsBoard();
+        }
+
+        function updateProgress() {
+            let count = 0;
+            if (completedModules.aprender) count += 40;
+            if (completedModules.reto) count += 40;
+            if (completedModules.logros) count += 20;
+            progress = count;
+            document.getElementById('global-progress').innerText = progress;
+            updateGamificationUI();
+        }
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('text-uniminuto-primary', 'border-b-2', 'border-uniminuto-primary');
+                el.classList.add('text-slate-600');
+            });
+            document.getElementById('screen-' + screenId).classList.add('active');
+            const btn = document.getElementById('nav-' + screenId);
+            if (btn) {
+                btn.classList.remove('text-slate-600');
+                btn.classList.add('text-uniminuto-primary', 'border-b-2', 'border-uniminuto-primary');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-uniminuto-primary', 'text-white');
+                el.classList.add('bg-slate-200', 'text-slate-700');
+            });
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const tabBtn = document.getElementById('btn-' + tabId);
+            if (tabBtn) {
+                tabBtn.classList.remove('bg-slate-200', 'text-slate-700');
+                tabBtn.classList.add('bg-uniminuto-primary', 'text-white');
+            }
+
+            if (exploredTabs[tabId] === false) {
+                exploredTabs[tabId] = true;
+                const countExplored = Object.values(exploredTabs).filter(Boolean).length;
+                document.getElementById('tabs-explored-count').innerText = countExplored;
+
+                if (countExplored === 4 && !xpAwarded.tabsBonus) {
+                    xpAwarded.tabsBonus = true;
+                    addXP(100, 'Misión 1 Completada (+100 XP)', 'Exploraste las 4 pestañas clave del Laboratorio Conceptual.', '🧭');
+                } else {
+                    addXP(25, 'Exploración Conceptual (+25 XP)', 'Descubriste una nueva sección del laboratorio.', '🔍');
+                }
+                updateMissionsBoard();
+            }
+        }
+
+        function completeModule(moduleName) {
+            completedModules[moduleName] = true;
+            if (moduleName === 'aprender' && !xpAwarded.aprender) {
+                xpAwarded.aprender = true;
+                streak += 1;
+                xp = Math.min(MAX_XP, xp + 100);
+            }
+            updateProgress();
+            unlockBadge('explorer', 'Explorador Estratégico', 'Completaste el Laboratorio Conceptual de la Semana 4.');
+            alert("¡Módulo completado con éxito! Sumaste +100 XP y avanzas al Simulador Directivo.");
+            switchScreen('reto');
+        }
+
+        function evaluateSimulator() {
+            simAttempts += 1;
+            document.getElementById('sim-attempts').innerText = simAttempts;
+
+            const r1 = document.getElementById('raci-1').value;
+            const r2 = document.getElementById('raci-2').value;
+            const r3 = document.getElementById('raci-3').value;
+            const crisis = document.querySelector('input[name="crisis-choice"]:checked');
+            const feedback = document.getElementById('sim-feedback');
+
+            feedback.classList.remove('hidden');
+
+            if (r1 === 'R' && r2 === 'A' && r3 === 'C' && crisis && crisis.value === 'correct') {
+                streak += 1;
+                completedModules.reto = true;
+                if (!xpAwarded.reto) {
+                    xpAwarded.reto = true;
+                    xp = Math.min(MAX_XP, xp + 150);
+                }
+                updateProgress();
+                unlockBadge('crisis', 'Estratega ante la Crisis', 'Resolviste la Matriz RACI y protegiste el ROI con Presupuesto Base Cero.');
+                feedback.className = "p-4 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300";
+                feedback.innerHTML = "🎉 <strong>¡Excelente desempeño directivo!</strong> Asignaste correctamente la Matriz RACI y aplicaste el Presupuesto Base Cero con plan de contingencia (+150 XP).";
+            } else {
+                streak = 0;
+                updateGamificationUI();
+                feedback.className = "p-4 rounded-lg text-sm font-semibold bg-amber-100 text-amber-800 border border-amber-300";
+                feedback.innerHTML = "⚠️ <strong>Revisión necesaria:</strong> Tu racha se reinició a 0. Revisa la asignación RACI (Responsible ejecuta, Accountable rinde cuentas, Consulted asesora) y la respuesta financiera ante la crisis.";
+            }
+        }
+
+        function evaluateQuiz() {
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const feedback = document.getElementById('quiz-feedback');
+            const badge = document.getElementById('badge-container');
+
+            feedback.classList.remove('hidden');
+
+            if (q1 && q1.value === 'b' && q2 && q2.value === 'b') {
+                streak += 1;
+                completedModules.logros = true;
+                if (!xpAwarded.logros) {
+                    xpAwarded.logros = true;
+                    xp = Math.min(MAX_XP, xp + 150);
+                }
+                updateProgress();
+                badge.classList.remove('hidden');
+                badge.classList.add('badge-unlocked');
+                unlockBadge('master', 'Arquitecto del PEC', 'Aprobaste el cuestionario de transferencia y alcanzaste nivel directivo.');
+                feedback.className = "p-4 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300";
+                feedback.innerHTML = "✅ <strong>¡Felicitaciones!</strong> Respondiste correctamente ambas preguntas y sumaste +150 XP.";
+            } else {
+                streak = 0;
+                updateGamificationUI();
+                feedback.className = "p-4 rounded-lg text-sm font-semibold bg-rose-100 text-rose-800 border border-rose-300";
+                feedback.innerHTML = "❌ Algunas respuestas son incorrectas y tu racha volvió a 0. Repasa los conceptos en el Laboratorio Conceptual y vuelve a calificar.";
+                badge.classList.add('hidden');
+            }
+        }
+
+        function generateReport() {
+            alert(`Reporte de Bitácora Generado — Rango: ${getRankName(xp)} | XP: ${xp}/${MAX_XP} | Racha: ${streak} | Progreso: ${progress}%`);
+        }
+
+        updateGamificationUI();
+    </script>
+</body>
+</html>
